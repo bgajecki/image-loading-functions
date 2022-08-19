@@ -6,22 +6,22 @@
 #include <intrin.h> // _byteswap_
 #include "zlib/zlib.h" // uncompress
 
-// GLuint LoadBMP(const char* filename)
-unsigned char* LoadBMP(const char* filename)
+// GLuint LoadBmp(const char* filename)
+unsigned char* LoadBmp(const char* filename)
 {
-	unsigned int dataPos, // Pozycja gdzie zaczynaj¹ siê dane
+	unsigned int dataPos, // Pozycja gdzie zaczynajÂ¹ siÃª dane
 		imageSize,
-		width, // Szerokoœæ
-		height; // Wysokoœæ
+		width, // SzerokoÅ“Ã¦
+		height; // WysokoÅ“Ã¦
 	unsigned char* data, // Dane obrazu
-		header[54]; // Nag³ówek
+		header[54]; // NagÂ³Ã³wek
 
 	FILE* file;
 	fopen_s(&file, filename, "rb");
 
 	if (file == NULL) return false;
 
-	if (fread(header, 1, 54, file) != 54) // Wielkoœæ nag³ówka BMP wynosi 54 bajty
+	if (fread(header, 1, 54, file) != 54) // WielkoÅ“Ã¦ nagÂ³Ã³wka BMP wynosi 54 bajty
 		return false;
 
 	if (header[0] != 'B' || header[1] != 'M')
@@ -35,9 +35,9 @@ unsigned char* LoadBMP(const char* filename)
 	if (imageSize == 0)
 		imageSize = width * height * 3; // RGB
 	if (dataPos == 0)
-		dataPos = 54; // Koniec nag³ówka 
+		dataPos = 54; // Koniec nagÂ³Ã³wka 
 
-	data = new unsigned char[imageSize]; // Tworze tablice o wielkoœci danych obrazu z pliku(bajty)
+	data = new unsigned char[imageSize]; // Tworze tablice o wielkoÅ“ci danych obrazu z pliku(bajty)
 	fread(data, 1, imageSize, file);
 	fclose(file);
 	// Koniec pracy z plikiem
@@ -76,18 +76,18 @@ unsigned char PaethPredictor(unsigned char a, unsigned char b, unsigned char c)
 }
 
 
-// GLuint LoadPNG(const char* filename)
-unsigned char* LoadPNG(const char* filename)
+// GLuint LoadPng(const char* filename)
+unsigned char* LoadPng(const char* filename)
 {
 	unsigned long fSize,
 		iDataPos, // Pozycja IDAT
-		iDataSize, // Wielkoœæ IDAT
+		iDataSize, // WielkoÅ“Ã¦ IDAT
 		uncompressedDataSize;
-	unsigned int width, // Szerokoœæ 
-		height, // Wysokoœæ
+	unsigned int width, // SzerokoÅ“Ã¦ 
+		height, // WysokoÅ“Ã¦
 		bpp, // Bajty na piksel
 		imageSize;
-	unsigned char bitDeep, // G³êbia bitowa
+	unsigned char bitDeep, // GÂ³Ãªbia bitowa
 		colorType; // Typ koloru
 	unsigned char* fileData, 
 		* compressedData, 
@@ -98,19 +98,19 @@ unsigned char* LoadPNG(const char* filename)
 	fopen_s(&file, filename, "rb"); // Tryb - odczyt pliku binarnie
 	if (file == NULL) return false;
 
-	fseek(file, 0, SEEK_END); // Przesuwamy wskaŸnik pliku na koniec
-	fSize = ftell(file); // Uzyskujemy wielkoœæ pliku poprzez wskaŸnik pliku
-	rewind(file); // Ustawiamy wskaŸnik pliku na pocz¹tek
+	fseek(file, 0, SEEK_END); // Przesuwamy wskaÅ¸nik pliku na koniec
+	fSize = ftell(file); // Uzyskujemy wielkoÅ“Ã¦ pliku poprzez wskaÅ¸nik pliku
+	rewind(file); // Ustawiamy wskaÅ¸nik pliku na poczÂ¹tek
 
-	fileData = new unsigned char[fSize]; // Tworze tablice o wielkoœci pliku(bajty)
-	fread(fileData, 1, fSize, file); // Czytam ca³y plik
+	fileData = new unsigned char[fSize]; // Tworze tablice o wielkoÅ“ci pliku(bajty)
+	fread(fileData, 1, fSize, file); // Czytam caÂ³y plik
 	fclose(file);
 	// Koniec pracy z plikiem
 
 	if (fileData[0] != 0x89 || fileData[1] != 'P' || fileData[2] != 'N' || fileData[3] != 'G')
 		return false;
 
-	// Wczytanie wartoœci z pliku
+	// Wczytanie wartoÅ“ci z pliku
 	width = _byteswap_ulong(*(int*) & (fileData[0x10])); // Konwersja litle endian na big endian
 	height = _byteswap_ulong(*(int*) & (fileData[0x14]));
 	bitDeep = fileData[0x18];
@@ -122,7 +122,7 @@ unsigned char* LoadPNG(const char* filename)
 
 	switch (colorType)
 	{
-	case 0: // Skala szaroœci
+	case 0: // Skala szaroÅ“ci
 		if (bitDeep == 16)
 			bpp = 2;
 		else
@@ -134,21 +134,21 @@ unsigned char* LoadPNG(const char* filename)
 	case 3: // Indeks palety i PLTE
 		bpp = 2; // Tego nie jestem pewny
 		break;
-	case 4: // Skala szaroœci i próbka alfa
+	case 4: // Skala szaroÅ“ci i prÃ³bka alfa
 		bpp = 2 * (bitDeep / 8);
 		break;
 	case 6: // RGBA
 		bpp = 4 * (bitDeep / 8);
 		break;
 	}
-	imageSize = width * height * bpp; // Szerokoœæ * wysokoœæ * bajty na pixel
+	imageSize = width * height * bpp; // SzerokoÅ“Ã¦ * wysokoÅ“Ã¦ * bajty na pixel
 
 	compressedData = new unsigned char[iDataSize];
 	for (unsigned long i = 0; i < iDataSize; ++i)
 		compressedData[i] = fileData[i + iDataPos + 4]; // Wczytuje skompresowane dane
 	delete[] fileData; // Usuwam tablice z danymi pliku
 
-	uncompressedDataSize = imageSize + height; // Wielkoœæ zdjêcia(bajty) + kod filtru
+	uncompressedDataSize = imageSize + height; // WielkoÅ“Ã¦ zdjÃªcia(bajty) + kod filtru
 	uncompressedData = new unsigned char[uncompressedDataSize];
 	int nResult = uncompress(uncompressedData, &uncompressedDataSize, compressedData, iDataSize); // Dekompresuje dane
 
@@ -164,17 +164,17 @@ unsigned char* LoadPNG(const char* filename)
 				for (unsigned long j = i; j < i + width * bpp; ++j)
 					imageData[j - k] = uncompressedData[j + 1];
 				break;
-			case 1: // Left - pobieranie wczeœniej wartoœci dannego kana³u i sumowanie
+			case 1: // Left - pobieranie wczeÅ“niej wartoÅ“ci dannego kanaÂ³u i sumowanie
 				for (unsigned long j = i; j < i + bpp; ++j)
 					imageData[j - k] = uncompressedData[j + 1];
 				for (unsigned long j = i + bpp; j < i + width * bpp; ++j)
 					imageData[j - k] = uncompressedData[j + 1] + imageData[j - bpp];
 				break;
-			case 2: // Up - pobieranie wartoœci z wiersza znajduj¹cego siê u góry i sumowanie
+			case 2: // Up - pobieranie wartoÅ“ci z wiersza znajdujÂ¹cego siÃª u gÃ³ry i sumowanie
 				for (unsigned long j = i; j < i + width * bpp; ++j)
 					imageData[j - k] = uncompressedData[j + 1] + imageData[j - width * bpp];
 				break;
-			case 3: // Average - œrednia pomiêdzy metodami Up i Down zakr¹glona w dó³
+			case 3: // Average - Å“rednia pomiÃªdzy metodami Up i Down zakrÂ¹glona w dÃ³Â³
 				for (unsigned long j = i; j < i + bpp; ++j)
 					imageData[j - k] = uncompressedData[j + 1];
 				for (unsigned long j = i + bpp; j < i + width * bpp; ++j)
@@ -188,10 +188,10 @@ unsigned char* LoadPNG(const char* filename)
 				break;
 			}
 		}
-		delete[] uncompressedData; // Usuwam odkompresowane dane, które s¹ przed filtracj¹
+		delete[] uncompressedData; // Usuwam odkompresowane dane, ktÃ³re sÂ¹ przed filtracjÂ¹
 
 		// Zamiana danych na texture
-		// Zak³adam, ¿e typ koloru 6(RGBA) i g³êbia bitowa 8 czyli jeden bajt na kana³
+		// ZakÂ³adam, Â¿e typ koloru 6(RGBA) i gÂ³Ãªbia bitowa 8 czyli jeden bajt na kanaÂ³
 		/*
 		GLuint texture;
 		glGenTextures(1, &texture);
